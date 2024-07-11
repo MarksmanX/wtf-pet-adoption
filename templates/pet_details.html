@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}{{pet.name}}{% endblock %}
+
+{% block content %}
+<h1 class="display-2">{{pet.name}} Details</h1>
+<div class="container">
+    <h3>Name: {{pet.name}}</h3>
+    <h4>Species: {{pet.species}}</h4>
+    {% if pet.photo_url != None %}
+    <p>
+        <h4>Photo: <img src="{{pet.photo_url}}" alt="{{pet.name}}" style="max-width: 25%;"></h4>
+    </p>
+    {% endif %}
+    {% if age != None %}
+    <h4>Age: {{pet.age}}</h4>
+    {% endif %}
+</div>
+<form method="POST">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                {% for field in form if field.widget.input_type != 'hidden' and field.name not in ['name', 'species', 'age'] %}
+                <div class="form-group">
+                    {{field.label}}
+                    {{field(class='my-2')}}
+
+                    {% for err in field.errors %}
+                    <small class="form-text text-danger">
+                        {{err}}
+                    </small>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+                <button class="btn btn-success btn-large">Save Changes</button>
+            </form>
+        </div>
+    </div>
+</form>
+{% endblock %}

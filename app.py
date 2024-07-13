@@ -41,13 +41,28 @@ def show_add_form():
 @app.route('/<int:pet_id>', methods=["GET", "POST"])
 def show_pet_details(pet_id):
     """Shows the detail for a specific pet."""
-    form=PetForm()
     pet = Pet.query.get_or_404(pet_id)
+    form=PetForm(obj=pet)
+
+    # Pre-populate the name and species so that they stay the same.
+    if request.method == 'POST':
+        # Explicitly set the name and species to their current values if not provided
+        if not form.name.data:
+            form.name.data = pet.name
+        if not form.species.data:
+            form.species.data = pet.species
+            
     if form.validate_on_submit():
         pet.photo_url=form.photo_url.data
         pet.notes=form.notes.data
         pet.available=form.available.data
         db.session.commit()
-        return redirect(f'/{pet_id}')
+        return redirect(f'/')
     else:
+        print(form.errors)  # Print form errors to console
+        if form.errors:
+            flash('Form validation failed. Please correct the errors and try again.', 'danger')
+            for field, errors in form.errors.items():
+                for error in errors:
+                    flash(f"Error in {getattr(form, field).label.text}: {error}", 'danger')
         return render_template('pet_details.html', pet=pet, form=form)
